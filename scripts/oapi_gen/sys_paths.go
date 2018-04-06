@@ -4,6 +4,73 @@ import (
 	"github.com/hashicorp/vault/vault"
 )
 
+func sysGenerateRootAttempt() Path {
+	p := NewPath("/sys/generate-root/attempt")
+
+	// GET
+	m := NewMethod("Reads the configuration and process of the current root generation attempt.", "sys")
+	m.addResponse(200, `
+	{
+	  "started": true,
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "progress": 1,
+	  "required": 3,
+	  "encoded_token": "",
+	  "pgp_fingerprint": "816938b8a29146fbe245dd29e7cbaf8e011db793",
+	  "complete": false
+}`)
+	p.Methods["get"] = m
+
+	// PUT
+	m = NewMethod("Initializes a new root generation attempt", "sys")
+	m.BodyProps = []Property{
+		NewProperty("otp", "string", "Specifies a base64-encoded 16-byte value."),
+		NewProperty("pgp_key", "string", "Specifies a base64-encoded PGP public key."),
+	}
+	m.addResponse(200, `
+	{
+	    "started": true,
+	    "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	    "progress": 1,
+	    "required": 3,
+	    "encoded_token": "",
+	    "pgp_fingerprint": "",
+	    "complete": false
+	}`)
+	p.Methods["put"] = m
+
+	// DELETE
+	m = NewMethod("Cancels any in-progress root generation attempt.", "sys")
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["delete"] = m
+
+	return p
+}
+
+func sysGenerateRootUpdate() Path {
+	p := NewPath("/sys/generate-root/update")
+
+	// PUT
+	m := NewMethod("Enter a single master key share to progress the root generation attempt.", "sys")
+	m.BodyProps = []Property{
+		NewProperty("key", "string", "Specifies a single master key share."),
+		NewProperty("nonce", "string", "Specifies the nonce of the attempt."),
+	}
+	m.addResponse(200, `
+	{
+	  "started": true,
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "progress": 3,
+	  "required": 3,
+	  "pgp_fingerprint": "",
+	  "complete": true,
+	  "encoded_token": "FPzkNBvwNDeFh4SmGA8c+w=="
+	}`)
+	p.Methods["put"] = m
+
+	return p
+}
+
 func sysInit() Path {
 	p := NewPath("/sys/init")
 
@@ -108,6 +175,178 @@ func sysHealth() Path {
 	return p
 }
 
+func sysRekeyInit() Path {
+	p := NewPath("/sys/rekey/init")
+
+	// GET
+	m := NewMethod("Read the configuration and progress of the current rekey attempt.", "sys")
+	m.addResponse(200, `
+	{
+	  "started": true,
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "t": 3,
+	  "n": 5,
+	  "progress": 1,
+	  "required": 3,
+	  "pgp_fingerprints": ["abcd1234"],
+	  "backup": true
+	}`)
+
+	p.Methods["get"] = m
+
+	// PUT
+	m = NewMethod("Initializes a new rekey attempt", "sys")
+	m.BodyProps = []Property{
+		NewProperty("secret_shares", "number",
+			"Specifies the number of shares to split the master key into."),
+		NewProperty("secret_threshold", "number",
+			"Specifies the number of shares required to reconstruct the master key. This must be less than or equal secret_shares. If using Vault HSM with auto-unsealing, this value must be the same as secret_shares."),
+		NewProperty("pgp_keys", "array/string",
+			"Specifies an array of PGP public keys used to encrypt the output unseal keys. Ordering is preserved. The keys must be base64-encoded from their original binary representation. The size of this array must be the same as secret_shares."),
+		NewProperty("backup", "boolean", "Specifies if using PGP-encrypted keys, whether Vault should also store a plaintext backup of the PGP-encrypted keys."),
+	}
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["put"] = m
+
+	// DELETE
+	m = NewMethod("Cancels any in-progress rekey.", "sys")
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["delete"] = m
+	return p
+}
+
+func sysRekeyUpdate() Path {
+	p := NewPath("/sys/rekey/update")
+
+	// PUT
+	m := NewMethod("Enter a single master key share to progress the rekey of the Vault.", "sys")
+	m.BodyProps = []Property{
+		NewProperty("key", "string", "Specifies a single master key share."),
+		NewProperty("nonce", "string", "Specifies the nonce of the rekey attempt."),
+	}
+	m.addResponse(200, `
+	{
+	  "complete": true,
+	  "keys": ["one", "two", "three"],
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "pgp_fingerprints": ["abcd1234"],
+	  "keys_base64": ["base64keyvalue"],
+	  "backup": true
+	}`)
+	p.Methods["put"] = m
+
+	return p
+}
+
+func sysRekeyBackup() Path {
+	p := NewPath("/sys/rekey/backup")
+
+	// GET
+	m := NewMethod("Return the backup copy of PGP-encrypted unseal keys.", "sys")
+	m.addResponse(200, `
+	{
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "keys": {
+		"abcd1234": "..."
+	  }
+	}`)
+
+	p.Methods["get"] = m
+
+	// DELETE
+	m = NewMethod("Deletes the backup copy of PGP-encrypted unseal keys.", "sys")
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["delete"] = m
+
+	return p
+}
+
+func sysRekeyRecoveryBackup() Path {
+	p := NewPath("/sys/rekey-recovery-key/backup")
+
+	// GET
+	m := NewMethod("Return the backup copy of PGP-encrypted recovery key shares.", "sys")
+	m.addResponse(200, `
+	{
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "keys": {
+		"abcd1234": "..."
+	  }
+	}`)
+
+	p.Methods["get"] = m
+
+	// DELETE
+	m = NewMethod("Deletes the backup copy of PGP-encrypted recovery key shares.", "sys")
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["delete"] = m
+
+	return p
+}
+
+func sysRekeyRecoveryInit() Path {
+	p := NewPath("/sys/rekey-recovery-key/init")
+
+	// GET
+	m := NewMethod("Read the configuration and progress of the current rekey attempt.", "sys")
+	m.addResponse(200, `
+	{
+	  "started": true,
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "t": 3,
+	  "n": 5,
+	  "progress": 1,
+	  "required": 3,
+	  "pgp_fingerprints": ["abcd1234"],
+	  "backup": true
+	}`)
+
+	p.Methods["get"] = m
+
+	// PUT
+	m = NewMethod("Initializes a new rekey attempt", "sys")
+	m.BodyProps = []Property{
+		NewProperty("secret_shares", "number",
+			"Specifies the number of shares to split the recovery key into."),
+		NewProperty("secret_threshold", "number",
+			"Specifies the number of shares required to reconstruct the recovery key. This must be less than or equal secret_shares. If using Vault HSM with auto-unsealing, this value must be the same as secret_shares."),
+		NewProperty("pgp_keys", "array/string",
+			"Specifies an array of PGP public keys used to encrypt the output unseal keys. Ordering is preserved. The keys must be base64-encoded from their original binary representation. The size of this array must be the same as secret_shares."),
+		NewProperty("backup", "boolean", "Specifies if using PGP-encrypted keys, whether Vault should also store a plaintext backup of the PGP-encrypted keys."),
+	}
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["put"] = m
+
+	// DELETE
+	m = NewMethod("Cancels any in-progress rekey.", "sys")
+	m.Responses = []Response{StdRespNoContent}
+	p.Methods["delete"] = m
+	return p
+}
+
+func sysRekeyRecoveryUpdate() Path {
+	p := NewPath("/sys/rekey-recovery-key/update")
+
+	// PUT
+	m := NewMethod("Enter a single master key share to progress the rekey of the Vault.", "sys")
+	m.BodyProps = []Property{
+		NewProperty("key", "string", "Specifies a single master key share."),
+		NewProperty("nonce", "string", "Specifies the nonce of the rekey attempt."),
+	}
+	m.addResponse(200, `
+	{
+	  "complete": true,
+	  "keys": ["one", "two", "three"],
+	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
+	  "pgp_fingerprints": ["abcd1234"],
+	  "keys_base64": ["base64keyvalue"],
+	  "backup": true
+	}`)
+	p.Methods["put"] = m
+
+	return p
+}
+
 func unseal() Path {
 	p := NewPath("/sys/unseal")
 	m := NewMethod(vault.SysHelp["unseal"][0], "sys")
@@ -133,9 +372,17 @@ func unseal() Path {
 
 // This is so horrible
 var sysPaths = []Path{
+	sysGenerateRootAttempt(),
+	sysGenerateRootUpdate(),
 	sysLeader(),
 	sysInit(),
 	sysHealth(),
+	sysRekeyInit(),
+	sysRekeyUpdate(),
+	sysRekeyBackup(),
+	sysRekeyRecoveryInit(),
+	sysRekeyRecoveryUpdate(),
+	sysRekeyRecoveryBackup(),
 	sealStatus(),
 	seal(),
 	stepDown(),
