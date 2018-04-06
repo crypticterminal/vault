@@ -19,6 +19,7 @@ func (r *OAPIRenderer) render(doc Doc) {
 		"indent": funcIndent,
 	}
 
+	doc.SortPaths()
 	tmpl, _ := template.New("root").Funcs(funcs).Parse(r.template)
 	tmpl.Execute(r.output, doc)
 }
