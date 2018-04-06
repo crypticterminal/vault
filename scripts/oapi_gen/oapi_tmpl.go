@@ -20,7 +20,7 @@ paths:{{ range .Paths }}
       produces:
         - application/json
       tags:
-	  {{- range $el.Tags }}
+      {{- range $el.Tags }}
         - {{ . }}
       {{- end }}{{ if (or $el.Parameters $el.BodyProps) }}
       parameters:{{ range $el.Parameters }}
@@ -39,13 +39,21 @@ paths:{{ range .Paths }}
               {{ .Name }}:
                 description: {{ .Description }}
                 type: {{ .Type }}
-				{{- if (eq .Type "array") }}
+                {{- if (eq .Type "array") }}
                 items:
                   type: {{ .SubType }}
-				{{- end }}
+                {{- end }}
             {{- end }}
       {{-  end }}
       responses:
-        200:
-          description: OK{{ end }}
+	  {{- range $el.Responses }}
+        {{ .Code }}:
+          description: {{ .Description }}
+		  {{- if .Example }}
+          examples:
+            application/json:
+              {{  .Example }}
+		  {{ end }}
+	  {{ end }}
+    {{- end }}
 {{ end }}`

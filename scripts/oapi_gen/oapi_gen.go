@@ -120,15 +120,18 @@ func procLogicalPath(prefix string, p *framework.Path) []Path {
 				Tags:    []string{prefix},
 			}
 			switch opType {
-			case logical.UpdateOperation:
+			case logical.CreateOperation:
 				httpMethod = "post"
+				m.Responses = []Response{StdRespNoContent}
+			case logical.UpdateOperation:
+				httpMethod = "put"
+				m.Responses = []Response{StdRespNoContent}
 			case logical.DeleteOperation:
 				httpMethod = "delete"
-			case logical.ReadOperation:
+				m.Responses = []Response{StdRespNoContent}
+			case logical.ReadOperation, logical.ListOperation:
 				httpMethod = "get"
-			case logical.ListOperation:
-				continue
-				//httpMethod = "get"
+				m.Responses = []Response{StdRespOK}
 			default:
 				panic(fmt.Sprintf("unknown operation type %v", opType))
 			}
@@ -150,7 +153,7 @@ func procLogicalPath(prefix string, p *framework.Path) []Path {
 
 			// It's assumed that any fields not present in the path can be part of
 			// the body for POST methods.
-			if httpMethod == "post" {
+			if httpMethod == "post" || httpMethod == "put" {
 				for name, field := range p.Fields {
 					if _, ok := d[name]; !ok {
 						typ, sub := convertType(field.Type)
@@ -186,22 +189,7 @@ func main() {
 	doc.loadBackend("sys", b.Backend)
 	doc.loadBackend("aws", aws_be.Backend)
 
-	doc.Add(Path{
-		Pattern: "/sys/init",
-		Methods: map[string]Method{
-			"get": {
-				Summary: vault.SysHelp["init"][0],
-				Tags:    []string{"sys"},
-			},
-			"post": {
-				Summary: vault.SysHelp["init"][0],
-				Tags:    []string{"sys"},
-				BodyProps: []Property{
-					{"pgp_keys", "array", "string", "Specifies an array of PGP public keys used to encrypt the output unseal keys."},
-				},
-			},
-		},
-	})
+	doc.Add(sysPaths...)
 
 	r := OAPIRenderer{
 		output:   os.Stdout,
