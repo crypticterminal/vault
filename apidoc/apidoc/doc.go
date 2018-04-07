@@ -8,6 +8,11 @@ import (
 	"github.com/hashicorp/vault/version"
 )
 
+type DocExporter interface {
+	BackendPaths() []*framework.Path
+	ManualPaths() []Path
+}
+
 type Doc struct {
 	Version string
 	Paths   []Path
@@ -26,6 +31,12 @@ func (d *Doc) Add(p ...Path) {
 
 func (d *Doc) LoadBackend(prefix string, backend *framework.Backend) {
 	for _, p := range backend.Paths {
+		paths := procLogicalPath(prefix, p)
+		d.Paths = append(d.Paths, paths...)
+	}
+}
+func (d *Doc) LoadBackend2(prefix string, backendPaths []*framework.Path) {
+	for _, p := range backendPaths {
 		paths := procLogicalPath(prefix, p)
 		d.Paths = append(d.Paths, paths...)
 	}
@@ -64,7 +75,7 @@ func NewMethod(summary string, tags ...string) Method {
 	}
 }
 
-func (m *Method) addResponse(code int, example string) {
+func (m *Method) AddResponse(code int, example string) {
 	var description string
 	switch code {
 	case 200:

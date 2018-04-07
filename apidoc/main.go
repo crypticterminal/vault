@@ -3,23 +3,24 @@ package main
 import (
 	"os"
 
-	hclog "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/apidoc/apidoc"
 	"github.com/hashicorp/vault/builtin/logical/aws"
-	"github.com/hashicorp/vault/helper/logging"
 	"github.com/hashicorp/vault/vault"
 )
 
 func main() {
-	c := vault.Core{}
-	b := vault.NewSystemBackend(&c, logging.NewVaultLogger(hclog.Trace))
+	//c := vault.Core{}
+	//b := vault.NewSystemBackend(&c, logging.NewVaultLogger(hclog.Trace))
 	aws_be := aws.Backend()
 
 	doc := apidoc.NewDoc()
-	doc.LoadBackend("sys", b.Backend)
+	//doc.LoadBackend("sys", b.Backend)
+
 	doc.LoadBackend("aws", aws_be.Backend)
 
-	doc.Add(apidoc.SysPaths...)
+	d := vault.DocExport{}
+	doc.LoadBackend2("sys", d.BackendPaths())
+	doc.Add(d.ManualPaths()...)
 
 	r := apidoc.OAPIRenderer{
 		Output:   os.Stdout,
