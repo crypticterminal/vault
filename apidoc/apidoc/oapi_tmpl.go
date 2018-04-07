@@ -13,16 +13,13 @@ info:
     name: Mozilla Public License 2.0
     url: https://www.mozilla.org/en-US/MPL/2.0
 
-paths:{{ range .Paths }}
+paths:{{ range .PathsLikeBefore }}
   {{ .Pattern }}:{{ range $method, $el := .Methods }}
     {{ $method }}:{{ if $el.Summary }}
       summary: {{ $el.Summary }}{{ end }}
       produces:
         - application/json
-      tags:
-      {{- range $el.Tags }}
-        - {{ . }}
-      {{- end }}{{ if (or $el.Parameters $el.BodyProps) }}
+      tags:{{ if (or $el.Parameters $el.BodyProps) }}
       parameters:{{ range $el.Parameters }}
         - name: {{ .Property.Name }}
           description: {{ .Property.Description }}

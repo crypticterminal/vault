@@ -14,7 +14,7 @@ func main() {
 	doc := apidoc.NewDoc()
 	doc.LoadBackend("aws", aws_be.Backend)
 	doc.LoadBackend("sys", vault.Backend())
-	doc.Add(vault.ManualPaths()...)
+	doc.Add("sys", vault.ManualPaths()...)
 
 	r := apidoc.OAPIRenderer{
 		Output:   os.Stdout,

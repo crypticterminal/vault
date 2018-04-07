@@ -9,7 +9,7 @@ func sysGenerateRootAttempt() apidoc.Path {
 	p := apidoc.NewPath("/sys/generate-root/attempt")
 
 	// GET
-	m := apidoc.NewMethod("Reads the configuration and process of the current root generation attempt.", "sys")
+	m := apidoc.NewMethod("Reads the configuration and process of the current root generation attempt.")
 	m.AddResponse(200, `
 	{
 	  "started": true,
@@ -23,7 +23,7 @@ func sysGenerateRootAttempt() apidoc.Path {
 	p.Methods["get"] = m
 
 	// PUT
-	m = apidoc.NewMethod("Initializes a new root generation attempt", "sys")
+	m = apidoc.NewMethod("Initializes a new root generation attempt")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("otp", "string", "Specifies a base64-encoded 16-byte value."),
 		apidoc.NewProperty("pgp_key", "string", "Specifies a base64-encoded PGP public key."),
@@ -41,7 +41,7 @@ func sysGenerateRootAttempt() apidoc.Path {
 	p.Methods["put"] = m
 
 	// DELETE
-	m = apidoc.NewMethod("Cancels any in-progress root generation attempt.", "sys")
+	m = apidoc.NewMethod("Cancels any in-progress root generation attempt.")
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["delete"] = m
 
@@ -52,7 +52,7 @@ func sysGenerateRootUpdate() apidoc.Path {
 	p := apidoc.NewPath("/sys/generate-root/update")
 
 	// PUT
-	m := apidoc.NewMethod("Enter a single master key share to progress the root generation attempt.", "sys")
+	m := apidoc.NewMethod("Enter a single master key share to progress the root generation attempt.")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("key", "string", "Specifies a single master key share."),
 		apidoc.NewProperty("nonce", "string", "Specifies the nonce of the attempt."),
@@ -75,11 +75,11 @@ func sysGenerateRootUpdate() apidoc.Path {
 func sysInit() apidoc.Path {
 	p := apidoc.NewPath("/sys/init")
 
-	m := apidoc.NewMethod(SysHelp["init"][0], "sys")
+	m := apidoc.NewMethod(SysHelp["init"][0])
 	m.AddResponse(200, `{"initialized": true}`)
 	p.Methods["get"] = m
 
-	m = apidoc.NewMethod(SysHelp["init"][0], "sys")
+	m = apidoc.NewMethod(SysHelp["init"][0])
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("pgp_keys", "array/string",
 			"Specifies an array of PGP public keys used to encrypt the output unseal keys. Ordering is preserved. The keys must be base64-encoded from their original binary representation. The size of this array must be the same as secret_shares."),
@@ -108,7 +108,7 @@ func sysInit() apidoc.Path {
 
 func sysLeader() apidoc.Path {
 	p := apidoc.NewPath("/sys/leader")
-	m := apidoc.NewMethod("Check the high availability status and current leader of Vault", "sys")
+	m := apidoc.NewMethod("Check the high availability status and current leader of Vault")
 	m.AddResponse(200, `
 		{
             "ha_enabled": true,
@@ -123,7 +123,7 @@ func sysLeader() apidoc.Path {
 
 func sealStatus() apidoc.Path {
 	p := apidoc.NewPath("/sys/seal-status")
-	m := apidoc.NewMethod(SysHelp["seal-status"][0], "sys")
+	m := apidoc.NewMethod(SysHelp["seal-status"][0])
 	m.AddResponse(200, `
 		{
 			  "type": "shamir",
@@ -143,7 +143,7 @@ func sealStatus() apidoc.Path {
 
 func seal() apidoc.Path {
 	p := apidoc.NewPath("/sys/seal")
-	m := apidoc.NewMethod(SysHelp["seal"][0], "sys")
+	m := apidoc.NewMethod(SysHelp["seal"][0])
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["get"] = m
 
@@ -152,7 +152,7 @@ func seal() apidoc.Path {
 
 func stepDown() apidoc.Path {
 	p := apidoc.NewPath("/sys/step-down")
-	m := apidoc.NewMethod("Causes the node to give up active status.", "sys")
+	m := apidoc.NewMethod("Causes the node to give up active status.")
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["put"] = m
 
@@ -161,7 +161,7 @@ func stepDown() apidoc.Path {
 
 func sysHealth() apidoc.Path {
 	p := apidoc.NewPath("/sys/health")
-	m := apidoc.NewMethod("Returns the health status of Vault.", "sys")
+	m := apidoc.NewMethod("Returns the health status of Vault.")
 	m.Responses = []apidoc.Response{
 		apidoc.NewResponse(200, "initialized, unsealed, and active", ""),
 		apidoc.NewResponse(429, "unsealed and standby", ""),
@@ -180,7 +180,7 @@ func sysRekeyInit() apidoc.Path {
 	p := apidoc.NewPath("/sys/rekey/init")
 
 	// GET
-	m := apidoc.NewMethod("Read the configuration and progress of the current rekey attempt.", "sys")
+	m := apidoc.NewMethod("Read the configuration and progress of the current rekey attempt.")
 	m.AddResponse(200, `
 	{
 	  "started": true,
@@ -196,7 +196,7 @@ func sysRekeyInit() apidoc.Path {
 	p.Methods["get"] = m
 
 	// PUT
-	m = apidoc.NewMethod("Initializes a new rekey attempt", "sys")
+	m = apidoc.NewMethod("Initializes a new rekey attempt")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("secret_shares", "number",
 			"Specifies the number of shares to split the master key into."),
@@ -210,7 +210,7 @@ func sysRekeyInit() apidoc.Path {
 	p.Methods["put"] = m
 
 	// DELETE
-	m = apidoc.NewMethod("Cancels any in-progress rekey.", "sys")
+	m = apidoc.NewMethod("Cancels any in-progress rekey.")
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["delete"] = m
 	return p
@@ -220,7 +220,7 @@ func sysRekeyUpdate() apidoc.Path {
 	p := apidoc.NewPath("/sys/rekey/update")
 
 	// PUT
-	m := apidoc.NewMethod("Enter a single master key share to progress the rekey of the Vault.", "sys")
+	m := apidoc.NewMethod("Enter a single master key share to progress the rekey of the Vault.")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("key", "string", "Specifies a single master key share."),
 		apidoc.NewProperty("nonce", "string", "Specifies the nonce of the rekey attempt."),
@@ -243,7 +243,7 @@ func sysRekeyBackup() apidoc.Path {
 	p := apidoc.NewPath("/sys/rekey/backup")
 
 	// GET
-	m := apidoc.NewMethod("Return the backup copy of PGP-encrypted unseal keys.", "sys")
+	m := apidoc.NewMethod("Return the backup copy of PGP-encrypted unseal keys.")
 	m.AddResponse(200, `
 	{
 	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
@@ -255,7 +255,7 @@ func sysRekeyBackup() apidoc.Path {
 	p.Methods["get"] = m
 
 	// DELETE
-	m = apidoc.NewMethod("Deletes the backup copy of PGP-encrypted unseal keys.", "sys")
+	m = apidoc.NewMethod("Deletes the backup copy of PGP-encrypted unseal keys.")
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["delete"] = m
 
@@ -266,7 +266,7 @@ func sysRekeyRecoveryBackup() apidoc.Path {
 	p := apidoc.NewPath("/sys/rekey-recovery-key/backup")
 
 	// GET
-	m := apidoc.NewMethod("Return the backup copy of PGP-encrypted recovery key shares.", "sys")
+	m := apidoc.NewMethod("Return the backup copy of PGP-encrypted recovery key shares.")
 	m.AddResponse(200, `
 	{
 	  "nonce": "2dbd10f1-8528-6246-09e7-82b25b8aba63",
@@ -278,7 +278,7 @@ func sysRekeyRecoveryBackup() apidoc.Path {
 	p.Methods["get"] = m
 
 	// DELETE
-	m = apidoc.NewMethod("Deletes the backup copy of PGP-encrypted recovery key shares.", "sys")
+	m = apidoc.NewMethod("Deletes the backup copy of PGP-encrypted recovery key shares.")
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["delete"] = m
 
@@ -289,7 +289,7 @@ func sysRekeyRecoveryInit() apidoc.Path {
 	p := apidoc.NewPath("/sys/rekey-recovery-key/init")
 
 	// GET
-	m := apidoc.NewMethod("Read the configuration and progress of the current rekey attempt.", "sys")
+	m := apidoc.NewMethod("Read the configuration and progress of the current rekey attempt.")
 	m.AddResponse(200, `
 	{
 	  "started": true,
@@ -305,7 +305,7 @@ func sysRekeyRecoveryInit() apidoc.Path {
 	p.Methods["get"] = m
 
 	// PUT
-	m = apidoc.NewMethod("Initializes a new rekey attempt", "sys")
+	m = apidoc.NewMethod("Initializes a new rekey attempt")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("secret_shares", "number",
 			"Specifies the number of shares to split the recovery key into."),
@@ -319,7 +319,7 @@ func sysRekeyRecoveryInit() apidoc.Path {
 	p.Methods["put"] = m
 
 	// DELETE
-	m = apidoc.NewMethod("Cancels any in-progress rekey.", "sys")
+	m = apidoc.NewMethod("Cancels any in-progress rekey.")
 	m.Responses = []apidoc.Response{apidoc.StdRespNoContent}
 	p.Methods["delete"] = m
 	return p
@@ -329,7 +329,7 @@ func sysRekeyRecoveryUpdate() apidoc.Path {
 	p := apidoc.NewPath("/sys/rekey-recovery-key/update")
 
 	// PUT
-	m := apidoc.NewMethod("Enter a single master key share to progress the rekey of the Vault.", "sys")
+	m := apidoc.NewMethod("Enter a single master key share to progress the rekey of the Vault.")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("key", "string", "Specifies a single master key share."),
 		apidoc.NewProperty("nonce", "string", "Specifies the nonce of the rekey attempt."),
@@ -352,7 +352,7 @@ func sysWrappingLookup() apidoc.Path {
 	p := apidoc.NewPath("/sys/wrapping/lookup")
 
 	// POST
-	m := apidoc.NewMethod("Look up wrapping properties for the given token.", "sys")
+	m := apidoc.NewMethod("Look up wrapping properties for the given token.")
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("token", "string", "Specifies the wrapping token ID."),
 	}
@@ -379,7 +379,7 @@ func sysWrappingLookup() apidoc.Path {
 
 func unseal() apidoc.Path {
 	p := apidoc.NewPath("/sys/unseal")
-	m := apidoc.NewMethod(SysHelp["unseal"][0], "sys")
+	m := apidoc.NewMethod(SysHelp["unseal"][0])
 	m.BodyProps = []apidoc.Property{
 		apidoc.NewProperty("key", "string", "Specifies a single master key share. This is required unless reset is true."),
 		apidoc.NewProperty("reset", "boolean", "Specifies if previously-provided unseal keys are discarded and the unseal process is reset."),

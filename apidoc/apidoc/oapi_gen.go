@@ -112,7 +112,7 @@ func procLogicalPath(prefix string, p *framework.Path) []Path {
 		for opType := range p.Callbacks {
 			m := Method{
 				Summary: prepareString(p.HelpSynopsis),
-				Tags:    []string{prefix},
+				//Tags:    []string{prefix},
 			}
 			switch opType {
 			case logical.CreateOperation:

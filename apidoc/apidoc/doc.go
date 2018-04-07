@@ -1,52 +1,65 @@
 package apidoc
 
 import (
-	"sort"
 	"strings"
 
 	"github.com/hashicorp/vault/logical/framework"
 	"github.com/hashicorp/vault/version"
 )
 
-// Document encapsulates a set a API documentation. The structure of it and its descendants roughly
+// Documente is a set a API documentation. The structure of it and its descendants roughly
 // follow the organization of OpenAPI, but it is not rigidly tied to that. Additional elements
 // can be added, and many OpenAPI constructs are omitted. It is meant as an itermediate format
 // from which OpenAPI or other targets can be generated.
 type Document struct {
 	Version string
-	Paths   []Path
+	//Paths   []Path
+	Mounts map[string][]Path
 }
 
 // NewDoc initialized a new, empty Document.
 func NewDoc() Document {
 	return Document{
 		Version: version.GetVersion().Version,
-		Paths:   make([]Path, 0),
+		//Paths:   make([]Path, 0),
+		Mounts: make(map[string][]Path),
 	}
 }
 
-func (d *Document) Add(p ...Path) {
-	d.Paths = append(d.Paths, p...)
+func (d *Document) Add(mount string, p ...Path) {
+	d.Mounts[mount] = append(d.Mounts[mount], p...)
+}
+
+func (d *Document) PathsLikeBefore() []Path {
+	var paths []Path
+	for _, pathe := range d.Mounts {
+		paths = append(paths, pathe...)
+	}
+	return paths
 }
 
 func (d *Document) LoadBackend(prefix string, backend *framework.Backend) {
 	for _, p := range backend.Paths {
 		paths := procLogicalPath(prefix, p)
-		d.Paths = append(d.Paths, paths...)
+		//d.Paths = append(d.Paths, paths...)
+		d.Mounts[prefix] = append(d.Mounts[prefix], paths...)
 	}
 }
 
 func (d *Document) SortPaths() {
-	sort.Slice(d.Paths, func(i, j int) bool {
-		return d.Paths[i].Pattern < d.Paths[j].Pattern
-	})
+	//sort.Slice(d.Paths, func(i, j int) bool {
+	//	return d.Paths[i].Pattern < d.Paths[j].Pattern
+	//})
 }
 
+// Path is the structure for a single path, including all of its methods.
+// The path description is kept split as: /<prefix>/<pattern>
 type Path struct {
 	Pattern string
 	Methods map[string]Method
 }
 
+// NewPath returns a new Path.
 func NewPath(pattern string) Path {
 	return Path{
 		Pattern: pattern,
@@ -59,13 +72,14 @@ type Method struct {
 	Parameters []Parameter
 	BodyProps  []Property
 	Responses  []Response
-	Tags       []string
+	//Tags       []string
 }
 
-func NewMethod(summary string, tags ...string) Method {
+//func NewMethod(summary string, tags ...string) Method {
+func NewMethod(summary string) Method {
 	return Method{
 		Summary: summary,
-		Tags:    tags,
+		//	Tags:    tags,
 	}
 }
 

@@ -20,8 +20,9 @@ func (r *OAPIRenderer) Render(doc Document) {
 	}
 
 	doc.SortPaths()
+	//fmt.Println(doc.PathsLikeBefore())
 	tmpl, _ := template.New("root").Funcs(funcs).Parse(r.Template)
-	tmpl.Execute(r.Output, doc)
+	tmpl.Execute(r.Output, &doc)
 }
 
 func funcIndent(count int, text string) string {
