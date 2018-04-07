@@ -347,6 +347,35 @@ func sysRekeyRecoveryUpdate() Path {
 	return p
 }
 
+func sysWrappingLookup() Path {
+	p := NewPath("/sys/wrapping/lookup")
+
+	// POST
+	m := NewMethod("Look up wrapping properties for the given token.", "sys")
+	m.BodyProps = []Property{
+		NewProperty("token", "string", "Specifies the wrapping token ID."),
+	}
+	m.addResponse(200, `
+	{
+	  "request_id": "481320f5-fdf8-885d-8050-65fa767fd19b",
+	  "lease_id": "",
+	  "lease_duration": 0,
+	  "renewable": false,
+	  "data": {
+		"creation_path": "sys/wrapping/wrap",
+		"creation_time": "2016-09-28T14:16:13.07103516-04:00",
+		"creation_ttl": 300
+	  },
+	  "wrap_info": null,
+	  "warnings": null,
+	  "auth": null
+	}`)
+
+	p.Methods["post"] = m
+
+	return p
+}
+
 func unseal() Path {
 	p := NewPath("/sys/unseal")
 	m := NewMethod(vault.SysHelp["unseal"][0], "sys")
@@ -379,10 +408,13 @@ var sysPaths = []Path{
 	sysHealth(),
 	sysRekeyInit(),
 	sysRekeyUpdate(),
-	sysRekeyBackup(),
+	//sysRekeyBackup(),
 	sysRekeyRecoveryInit(),
 	sysRekeyRecoveryUpdate(),
 	sysRekeyRecoveryBackup(),
+	//sysWrappingLookup(),
+	//sysWrappingRewrap(),
+	//sysWrappingUnwrap(),
 	sealStatus(),
 	seal(),
 	stepDown(),
