@@ -1,4 +1,4 @@
-package main
+package apidoc
 
 import (
 	"bufio"
@@ -9,19 +9,19 @@ import (
 )
 
 type OAPIRenderer struct {
-	output   io.Writer
-	template string
-	version  int
+	Output   io.Writer
+	Template string
+	Version  int
 }
 
-func (r *OAPIRenderer) render(doc Doc) {
+func (r *OAPIRenderer) Render(doc Doc) {
 	funcs := map[string]interface{}{
 		"indent": funcIndent,
 	}
 
 	doc.SortPaths()
-	tmpl, _ := template.New("root").Funcs(funcs).Parse(r.template)
-	tmpl.Execute(r.output, doc)
+	tmpl, _ := template.New("root").Funcs(funcs).Parse(r.Template)
+	tmpl.Execute(r.Output, doc)
 }
 
 func funcIndent(count int, text string) string {

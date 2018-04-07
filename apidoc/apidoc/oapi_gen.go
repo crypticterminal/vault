@@ -1,18 +1,13 @@
-package main
+package apidoc
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"sort"
 	"strings"
 
-	log "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/vault/builtin/logical/aws"
-	"github.com/hashicorp/vault/helper/logging"
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/logical/framework"
-	"github.com/hashicorp/vault/vault"
 )
 
 var optRe = regexp.MustCompile(`(?U)\(.*\)\?`)
@@ -178,24 +173,4 @@ func procLogicalPath(prefix string, p *framework.Path) []Path {
 	}
 
 	return docPaths
-}
-
-func main() {
-	c := vault.Core{}
-	b := vault.NewSystemBackend(&c, logging.NewVaultLogger(log.Trace))
-	aws_be := aws.Backend()
-
-	doc := NewDoc()
-	doc.loadBackend("sys", b.Backend)
-	doc.loadBackend("aws", aws_be.Backend)
-
-	doc.Add(sysPaths...)
-
-	r := OAPIRenderer{
-		output:   os.Stdout,
-		template: tmpl,
-		version:  2,
-	}
-	r.render(doc)
-	_ = r
 }

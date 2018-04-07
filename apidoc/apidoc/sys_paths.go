@@ -1,4 +1,4 @@
-package main
+package apidoc
 
 import (
 	"github.com/hashicorp/vault/vault"
@@ -400,7 +400,7 @@ func unseal() Path {
 }
 
 // This is so horrible
-var sysPaths = []Path{
+var SysPaths = []Path{
 	sysGenerateRootAttempt(),
 	sysGenerateRootUpdate(),
 	sysLeader(),

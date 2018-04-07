@@ -1,6 +1,6 @@
-package main
+package apidoc
 
-const tmpl = `swagger: "2.0"
+const Tmpl = `swagger: "2.0"
 info:
   title: HashiCorp Vault API
   description: |

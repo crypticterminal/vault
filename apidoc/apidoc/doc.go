@@ -1,4 +1,4 @@
-package main
+package apidoc
 
 import (
 	"sort"
@@ -24,7 +24,7 @@ func (d *Doc) Add(p ...Path) {
 	d.Paths = append(d.Paths, p...)
 }
 
-func (d *Doc) loadBackend(prefix string, backend *framework.Backend) {
+func (d *Doc) LoadBackend(prefix string, backend *framework.Backend) {
 	for _, p := range backend.Paths {
 		paths := procLogicalPath(prefix, p)
 		d.Paths = append(d.Paths, paths...)
