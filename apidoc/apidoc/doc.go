@@ -8,36 +8,35 @@ import (
 	"github.com/hashicorp/vault/version"
 )
 
-type Doc struct {
+// Document encapsulates a set a API documentation. The structure of it and its descendants roughly
+// follow the organization of OpenAPI, but it is not rigidly tied to that. Additional elements
+// can be added, and many OpenAPI constructs are omitted. It is meant as an itermediate format
+// from which OpenAPI or other targets can be generated.
+type Document struct {
 	Version string
 	Paths   []Path
 }
 
-func NewDoc() Doc {
-	return Doc{
+// NewDoc initialized a new, empty Document.
+func NewDoc() Document {
+	return Document{
 		Version: version.GetVersion().Version,
 		Paths:   make([]Path, 0),
 	}
 }
 
-func (d *Doc) Add(p ...Path) {
+func (d *Document) Add(p ...Path) {
 	d.Paths = append(d.Paths, p...)
 }
 
-func (d *Doc) LoadBackend(prefix string, backend *framework.Backend) {
+func (d *Document) LoadBackend(prefix string, backend *framework.Backend) {
 	for _, p := range backend.Paths {
 		paths := procLogicalPath(prefix, p)
 		d.Paths = append(d.Paths, paths...)
 	}
 }
-func (d *Doc) LoadBackend2(prefix string, backendPaths []*framework.Path) {
-	for _, p := range backendPaths {
-		paths := procLogicalPath(prefix, p)
-		d.Paths = append(d.Paths, paths...)
-	}
-}
 
-func (d *Doc) SortPaths() {
+func (d *Document) SortPaths() {
 	sort.Slice(d.Paths, func(i, j int) bool {
 		return d.Paths[i].Pattern < d.Paths[j].Pattern
 	})
@@ -57,10 +56,10 @@ func NewPath(pattern string) Path {
 
 type Method struct {
 	Summary    string
-	Tags       []string
 	Parameters []Parameter
 	BodyProps  []Property
 	Responses  []Response
+	Tags       []string
 }
 
 func NewMethod(summary string, tags ...string) Method {

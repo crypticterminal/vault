@@ -14,7 +14,7 @@ type OAPIRenderer struct {
 	Version  int
 }
 
-func (r *OAPIRenderer) Render(doc Doc) {
+func (r *OAPIRenderer) Render(doc Document) {
 	funcs := map[string]interface{}{
 		"indent": funcIndent,
 	}
