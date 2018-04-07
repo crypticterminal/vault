@@ -8,11 +8,6 @@ import (
 	"github.com/hashicorp/vault/version"
 )
 
-type DocExporter interface {
-	BackendPaths() []*framework.Path
-	ManualPaths() []Path
-}
-
 type Doc struct {
 	Version string
 	Paths   []Path

@@ -400,14 +400,11 @@ func unseal() apidoc.Path {
 	return p
 }
 
-type DocExport struct {
+func Backend() *framework.Backend {
+	return NewSystemBackend(&Core{}, nil).Backend
 }
 
-func (d DocExport) BackendPaths() []*framework.Path {
-	return NewSystemBackend(&Core{}, nil).Paths
-}
-
-func (d DocExport) ManualPaths() []apidoc.Path {
+func ManualPaths() []apidoc.Path {
 	return []apidoc.Path{
 		sysGenerateRootAttempt(),
 		sysGenerateRootUpdate(),
